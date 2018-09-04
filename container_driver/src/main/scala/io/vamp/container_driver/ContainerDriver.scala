@@ -1,11 +1,12 @@
 package io.vamp.container_driver
 
+import com.typesafe.scalalogging.LazyLogging
 import io.vamp.common._
 import io.vamp.common.akka.ExecutionContextProvider
 import io.vamp.common.notification.NotificationProvider
-import io.vamp.container_driver.notification.{ ContainerDriverNotificationProvider, UndefinedDockerImage, UnsupportedDeployableType }
+import io.vamp.container_driver.notification.{ContainerDriverNotificationProvider, UndefinedDockerImage, UnsupportedDeployableType}
 import io.vamp.model.artifact._
-import io.vamp.model.resolver.{ DeploymentValueResolver, WorkflowValueResolver }
+import io.vamp.model.resolver.{DeploymentValueResolver, WorkflowValueResolver}
 
 object ContainerDriver {
 
@@ -26,7 +27,7 @@ trait ContainerDriver extends ContainerDriverMapping with ContainerDriverValidat
   protected def artifactName2Id(artifact: Artifact): String
 }
 
-trait ContainerDriverMapping extends DeploymentValueResolver with WorkflowValueResolver {
+trait ContainerDriverMapping extends DeploymentValueResolver with WorkflowValueResolver with LazyLogging {
   this: NotificationProvider with NamespaceProvider with ExecutionContextProvider ⇒
 
   protected def portMappings(workflow: Workflow, network: String): List[DockerPortMapping] =
@@ -124,6 +125,7 @@ trait ContainerDriverMapping extends DeploymentValueResolver with WorkflowValueR
     val (privileged, parameters) = privilegedAndParameters(service.arguments)
 
     val network = service.network.orElse(cluster.network).getOrElse(Docker.network())
+    logger.info(s"Docker deployment name: ${deployment.name} network: $network")
 
     Docker(
       image = service.breed.deployable.definition,
