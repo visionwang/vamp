@@ -508,7 +508,7 @@ class MarathonDriverActor
       docker ← container.docker
       networkName ← Option(docker.network.getOrElse("")) // This is a hack to support 1.4 and 1.5 at the same time
       ipAddressToUse ← task.ipAddresses.headOption
-      if (networkName == "USER" || networkName == "HOST"
+      if (networkName == "USER"
         || app.networks.map(_.mode).contains("container"))
     } yield (ipAddressToUse.ipAddress,
       docker.portMappings.flatMap(_.containerPort) ++ container.portMappings.flatMap(_.containerPort))
