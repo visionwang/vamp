@@ -126,6 +126,10 @@ trait ContainerDriverMapping extends DeploymentValueResolver with WorkflowValueR
 
     val network = service.network.orElse(cluster.network).getOrElse(Docker.network())
     logger.info(s"Docker deployment name: ${deployment.name} network: $network")
+    logger.info(s"service network: ${service.network.getOrElse("")}")
+    logger.info(s"cluster network: ${cluster.network.getOrElse("")}")
+    logger.info(s"Docker network: ${cluster.network.getOrElse("")}")
+
 
     Docker(
       image = service.breed.deployable.definition,
