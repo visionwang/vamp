@@ -156,7 +156,7 @@ class MarathonDriverActor
   }
 
   private def get(deploymentServices: List[DeploymentServices], equalityRequest: ServiceEqualityRequest): Unit = {
-    log.info("getting deployment services")
+    log.info(s"getting deployment services #${deploymentServices.size}")
     val replyTo = sender()
     deploymentServices.flatMap(ds ⇒ ds.services.map((ds.deployment, _))).foreach {
       case (deployment, service) ⇒
