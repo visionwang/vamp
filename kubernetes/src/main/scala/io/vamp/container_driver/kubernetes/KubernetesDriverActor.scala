@@ -1,15 +1,16 @@
 package io.vamp.container_driver.kubernetes
 
-import akka.actor.{ Actor, ActorRef }
+import akka.actor.{Actor, ActorRef}
+import com.typesafe.scalalogging.LazyLogging
 import io.kubernetes.client.ApiException
 import io.vamp.common._
-import io.vamp.common.util.{ HashUtil, YamlUtil }
+import io.vamp.common.util.{HashUtil, YamlUtil}
 import io.vamp.common.vitals.InfoRequest
 import io.vamp.container_driver.ContainerDriverActor._
 import io.vamp.container_driver._
 import io.vamp.container_driver.notification.UnsupportedContainerDriverRequest
-import io.vamp.model.artifact.{ Gateway, Workflow }
-import io.vamp.model.reader.{ MegaByte, Quantity }
+import io.vamp.model.artifact.{Gateway, Workflow}
+import io.vamp.model.reader.{MegaByte, Quantity}
 import io.vamp.model.resolver.NamespaceValueResolver
 import org.json4s.DefaultFormats
 import org.json4s.native.Serialization.write
@@ -59,13 +60,18 @@ class KubernetesDriverActor
     with KubernetesNode
     with KubernetesDaemonSet
     with KubernetesNamespace
-    with NamespaceValueResolver {
+    with NamespaceValueResolver
+    with LazyLogging {
 
   import KubernetesDriverActor._
 
   protected val schema: Enumeration = KubernetesDriverActor.Schema
 
-  private lazy val k8sConfig = K8sClientConfig()
+  private lazy val k8sConfig = {
+    Try(logger.info(s"Kubernetes driver namespace: ${namespace.name}"))
+      .recover{case t: Throwable => logger.info("Kubernetes driver namespace error:"+ t.getMessage)}
+    K8sClientConfig()
+  }
 
   protected lazy val k8sClient: K8sClient = K8sClient.acquire(k8sConfig)
 
